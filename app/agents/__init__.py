@@ -1,1 +1,1 @@
-"""Reserved for task-planning agents in a future chunk."""
+"""Planner, executor, and verifier for the Day 2 sequential workflow."""

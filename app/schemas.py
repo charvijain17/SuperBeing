@@ -7,6 +7,13 @@ class ProviderName(str, Enum):
     anthropic = "anthropic"
     gemini = "gemini"
 
+
+class WorkflowProvider(str, Enum):
+    auto = "auto"
+    openai = "openai"
+    anthropic = "anthropic"
+    gemini = "gemini"
+
 class ChatRequest(BaseModel):
     provider: ProviderName
     prompt: str = Field(min_length=1, max_length=12000)
@@ -25,3 +32,38 @@ class HealthResponse(BaseModel):
     app: str
     version: str
     configured_providers: list[ProviderName]
+
+
+class PlanTask(BaseModel):
+    task_id: int = Field(ge=1)
+    description: str = Field(min_length=1)
+    task_type: str = Field(min_length=1)
+
+
+class RoutingDecision(BaseModel):
+    task_type: str
+    selected_provider: ProviderName
+    model: str
+    reason: str
+
+
+class WorkflowTraceEntry(BaseModel):
+    step: int
+    agent: str
+    status: str
+    provider: ProviderName
+    model: str
+    summary: str
+    intermediate_draft: str | None = None
+
+
+class WorkflowRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=12000)
+    provider: WorkflowProvider = WorkflowProvider.auto
+
+
+class WorkflowResponse(BaseModel):
+    final_answer: str
+    plan: list[PlanTask]
+    workflow_trace: list[WorkflowTraceEntry]
+    routing_decisions: list[RoutingDecision]
