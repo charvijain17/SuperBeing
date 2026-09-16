@@ -1,0 +1,1 @@
+"""Deterministic provider-selection rules."""
