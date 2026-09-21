@@ -4,14 +4,14 @@ from fastapi import Depends, FastAPI, Header, HTTPException, status
 from app.config import Settings, get_settings
 from app.routing.model_router import NoProviderConfiguredError
 from app.schemas import ChatRequest, ChatResponse, HealthResponse, WorkflowRequest, WorkflowResponse
-from app.services.llm_service import ProviderNotConfiguredError, configured_providers, generate_response
+from app.services.llm_service import ProviderNotConfiguredError, configured_providers, generate_response, has_api_key
 from app.workflows.sequential_workflow import SequentialWorkflow
 
 settings=get_settings()
 app=FastAPI(title=settings.app_name, version=settings.app_version, description="A multi-LLM orchestration API. Select OpenAI, Anthropic, or Gemini per request.")
 
 def require_api_key(x_api_key: str | None = Header(default=None, description="Optional server API key"), current_settings: Settings = Depends(get_settings)) -> None:
-    if current_settings.app_api_key and not (x_api_key and compare_digest(x_api_key, current_settings.app_api_key)):
+    if has_api_key(current_settings.app_api_key) and not (x_api_key and compare_digest(x_api_key, current_settings.app_api_key)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing X-API-Key.")
 
 @app.get("/", tags=["System"])
